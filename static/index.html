@@ -1221,6 +1221,39 @@
                     </form>
                 </div>
 
+                <!-- Investor Vetting Wish List (Target Startups) -->
+                <div class="dashboard-card glass" style="margin: 15px 0; padding: 16px; border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.01);">
+                    <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color: #f59e0b;"></i> Vetting Wish List (Target Startups)
+                    </h5>
+                    <form id="wishlist-add-form" style="display: flex; flex-direction: column; gap: 10px;" onsubmit="addWishListItem(event)">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1.2; min-width: 140px; display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Company Name</label>
+                                <input type="text" id="wish-name" placeholder="e.g. OpenAI, Stripe" required style="padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border-color)'">
+                            </div>
+                            <div style="flex: 1; min-width: 100px; display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Sector</label>
+                                <select id="wish-sector" style="padding: 8px; background: rgba(8, 12, 22, 0.9); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; height: 33px;">
+                                    <option value="SaaS">SaaS</option>
+                                    <option value="FinTech">FinTech</option>
+                                    <option value="DeepTech">DeepTech</option>
+                                    <option value="CleanTech">CleanTech</option>
+                                    <option value="EdTech">EdTech</option>
+                                    <option value="BioTech">BioTech</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1.5; min-width: 150px; display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Vetting Threshold Rule</label>
+                                <input type="text" id="wish-rule" placeholder="e.g. Churn < 1%, LTV/CAC > 4x" required style="padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border-color)'">
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn" style="margin-top: 6px; padding: 10px 18px; align-self: flex-end; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-plus"></i> Add to Wish List
+                        </button>
+                    </form>
+                </div>
+
                 <div class="modal-grid" style="grid-template-columns: 1.2fr 0.8fr; gap: 20px;">
                     <!-- Left: Portfolio Holdings & Bookmarks (Populated Dynamically) -->
                     <div id="profile-holdings-list">

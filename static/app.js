@@ -21,6 +21,90 @@ let bestStreak = parseInt(localStorage.getItem('bestStreak') || '0');
 let gameScore = parseInt(localStorage.getItem('gameScore') || '0');
 let bookmarkedStartups = JSON.parse(localStorage.getItem('bookmarkedStartups') || '[]');
 let investorProfile = JSON.parse(localStorage.getItem('investorProfile') || '{}');
+let wishListItems = JSON.parse(localStorage.getItem('wishListItems') || '[]');
+let currentPracticeCase = null;
+
+// Mock Vetting Cases Database
+const mockCases = [
+    {
+        id: 1,
+        sector: "SaaS",
+        title: "The Leaky SaaS Rocket",
+        desc: "A pre-seed B2B SaaS startup shows explosive top-line traction but struggles with attrition.",
+        yoy: "180%",
+        churn: "9.5% Monthly",
+        ltvCac: "1.2x",
+        runway: "6.0 mos",
+        tam: "$2.5B",
+        correctAns: "Pass",
+        explain: "Although 180% YoY Growth is remarkable, a 9.5% Monthly Churn implies losing ~70% of customer accounts every year. The LTV/CAC ratio is 1.2x, meaning marketing expenses are barely recovered. High growth built on high churn represents a 'leaky bucket' business that destroys capital. Correct move is to Decline (Pass)."
+    },
+    {
+        id: 2,
+        sector: "DeepTech",
+        title: "Nuclear R&D Horizon",
+        desc: "A deeptech enterprise developing clean fusion reactors has high engineering costs and no immediate sales, but vast market scale.",
+        yoy: "N/A (R&D)",
+        churn: "$120,000 Burn",
+        ltvCac: "N/A",
+        runway: "24.0 mos",
+        tam: "$85.0B",
+        correctAns: "Buy",
+        explain: "DeepTech operations (like fusion energy or quantum devices) have zero revenue in early stages due to heavy engineering R&D. However, a 24-month runway is excellent. With a $85B massive TAM and a 9.5/10 founder index, this represents high conviction. Asymmetric return profiles justify investing. Correct move is to Invest (Buy)."
+    },
+    {
+        id: 3,
+        sector: "FinTech",
+        title: "The Capital-Efficient Hub",
+        desc: "A niche payment processing SaaS targets regional banks. Growth is steady but capital efficiency is remarkable.",
+        yoy: "35%",
+        churn: "0.5% Monthly",
+        ltvCac: "4.8x",
+        runway: "18.0 mos",
+        tam: "$4.2B",
+        correctAns: "Buy",
+        explain: "While 35% YoY growth is moderate, the unit economics are elite. A 4.8x LTV/CAC represents exceptional marketing efficiency. The churn of 0.5% translates to stable customer retention. The company compiles assets capital-efficiently, showing high return probability. Correct move is to Invest (Buy)."
+    },
+    {
+        id: 4,
+        sector: "SaaS",
+        title: "Enterprise Scaleup Rocket",
+        desc: "A Series B enterprise SaaS startup targeting global retailers shows steady expansion metrics.",
+        yoy: "75%",
+        churn: "1.2% Monthly",
+        ltvCac: "3.5x",
+        runway: "15.0 mos",
+        tam: "$6.5B",
+        correctAns: "Buy",
+        explain: "At Series B, a startup must prove it can expand market share efficiently. A 3.5x LTV/CAC is a solid indicator of unit economic stability. Churn is low at 1.2% monthly, and YoY growth is high (75%) for a later stage business. The 15-month runway is healthy for a scaleup targeting cash break-even. Correct move is to Invest (Buy)."
+    },
+    {
+        id: 5,
+        sector: "EdTech",
+        title: "The EdTech Plateau",
+        desc: "A seed-stage local learning management system exhibits slow customer acquisition with high market friction.",
+        yoy: "8%",
+        churn: "5.5% Monthly",
+        ltvCac: "1.5x",
+        runway: "6.0 mos",
+        tam: "$1.2B",
+        correctAns: "Pass",
+        explain: "Slow YoY growth (8%) for a seed-stage startup is an extreme warning sign. Added to inefficient unit economics (LTV/CAC = 1.5x, Churn = 5.5%) and dangerously low capital runway (6 months), this company is highly likely to default. Correct move is to Decline (Pass)."
+    },
+    {
+        id: 6,
+        sector: "CleanTech",
+        title: "Solar Infrastructure Grid",
+        desc: "A Series A CleanTech business building advanced grid systems has long cash runway and highly efficient retention.",
+        yoy: "95%",
+        churn: "1.0% Monthly",
+        ltvCac: "4.2x",
+        runway: "30.0 mos",
+        tam: "$28.0B",
+        correctAns: "Buy",
+        explain: "CleanTech grid infrastructure represents a large TAM sector ($28B). A YoY Growth of 95% is robust for Series A, unit economics are highly profitable (LTV/CAC = 4.2x, Churn = 1.0%), and the cash runway is exceptional (30 months). This company has very low risk of failure. Correct move is to Invest (Buy)."
+    }
+];
 
 // Pagination state
 let currentPage = 1;
@@ -132,6 +216,8 @@ async function initApp() {
         // Initialize customizable profile details & streak HUD
         initProfileEdits();
         updateArenaHUD();
+        loadRandomPracticeCase();
+        renderVentureNews();
         
     } catch (error) {
         console.error("Initialization error:", error);
@@ -782,6 +868,76 @@ function submitPracticeGuess(caseId, guess) {
         <p style="margin-top: 6px;">${content}</p>
     `;
 
+// Dynamic Vetting Case study loader
+function loadRandomPracticeCase() {
+    let randomIndex = Math.floor(Math.random() * mockCases.length);
+    if (currentPracticeCase && currentPracticeCase.id === mockCases[randomIndex].id) {
+        randomIndex = (randomIndex + 1) % mockCases.length;
+    }
+    currentPracticeCase = mockCases[randomIndex];
+    
+    const container = document.getElementById('simulator-container');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:16px;">
+            <h4 style="font-family: var(--font-heading); color: var(--text-main); font-size: 14px; margin:0; display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-gamepad" style="color: var(--accent);"></i> Vetting Simulator Case #${currentPracticeCase.id}
+            </h4>
+            <span class="badge-tier high" style="font-size: 10px; padding: 2px 8px; text-transform: uppercase;">${currentPracticeCase.sector} Category</span>
+        </div>
+        
+        <h3 style="font-family: var(--font-heading); color: var(--text-main); font-size: 18px; margin-bottom: 8px;">${currentPracticeCase.title}</h3>
+        <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:16px;">${currentPracticeCase.desc}</p>
+        
+        <div class="practice-stats" style="margin-bottom: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            <div class="practice-stat"><span>YoY Growth:</span> <strong>${currentPracticeCase.yoy}</strong></div>
+            <div class="practice-stat"><span>Monthly Churn/Burn:</span> <strong>${currentPracticeCase.churn}</strong></div>
+            <div class="practice-stat"><span>LTV / CAC:</span> <strong>${currentPracticeCase.ltvCac}</strong></div>
+            <div class="practice-stat"><span>Capital Runway:</span> <strong>${currentPracticeCase.runway}</strong></div>
+            <div class="practice-stat" style="grid-column: span 2; border-top:1px solid var(--border-color); margin-top:6px; padding-top:10px;">
+                <span>Market Size (TAM):</span> <strong style="color: var(--accent); font-size:13px;">${currentPracticeCase.tam}</strong>
+            </div>
+        </div>
+        
+        <div id="simulator-quiz-options" style="display:flex; gap:12px;">
+            <button class="action-btn" onclick="submitSimulatorGuess('Buy')" style="flex:1; padding:10px 0;"><i class="fa-solid fa-thumbs-up"></i> Invest (Buy)</button>
+            <button class="action-btn secondary" onclick="submitSimulatorGuess('Pass')" style="flex:1; padding:10px 0;"><i class="fa-solid fa-ban"></i> Decline (Pass)</button>
+        </div>
+        
+        <div id="simulator-explanation" class="practice-explanation hidden" style="margin-top: 16px; padding: 15px; border-radius: 8px;">
+            <!-- Answer feedback gets injected here -->
+        </div>
+    `;
+}
+
+function submitSimulatorGuess(guess) {
+    if (!currentPracticeCase) return;
+    
+    const optionsDiv = document.getElementById('simulator-quiz-options');
+    const explainDiv = document.getElementById('simulator-explanation');
+    
+    if (optionsDiv) optionsDiv.style.display = 'none';
+    if (explainDiv) explainDiv.classList.remove('hidden');
+    
+    const isCorrect = guess === currentPracticeCase.correctAns;
+    const correctAnsLabel = currentPracticeCase.correctAns === 'Buy' ? 'Invest (Buy)' : 'Decline (Pass)';
+    const title = isCorrect ? "CORRECT DECISION!" : "WRONG DECISION.";
+    
+    explainDiv.className = `practice-explanation ${isCorrect ? 'correct' : 'incorrect'}`;
+    explainDiv.innerHTML = `
+        <h5 style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin:0;">
+            <i class="fa-solid ${isCorrect ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'}"></i> ${title}
+        </h5>
+        <div style="margin: 8px 0; padding: 6px 10px; border-radius: 4px; font-weight: 700; font-size: 11px; background: rgba(255,255,255,0.05); display: inline-block;">
+            Correct Answer: <span style="color: ${isCorrect ? 'var(--success)' : 'var(--danger)'};">${correctAnsLabel}</span>
+        </div>
+        <p style="margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--text-muted);">${currentPracticeCase.explain}</p>
+        <button class="submit-btn" onclick="loadRandomPracticeCase()" style="margin-top: 15px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding:10px 0;">
+            <span>Next Case Study</span> <i class="fa-solid fa-arrow-right-long"></i>
+        </button>
+    `;
+
     // Dynamic user profile stats tracking & Gaming streaks
     practiceTotalGuesses++;
     if (isCorrect) {
@@ -804,22 +960,21 @@ function submitPracticeGuess(caseId, guess) {
     
     // Add to user holdings portfolio if they chose to Invest (Buy)
     if (guess === 'Buy') {
-        const caseName = document.querySelector(`#practice-c${caseId} h4`).innerText;
-        const exists = userPortfolio.some(p => p.id === `CASE-${caseId}`);
+        const exists = userPortfolio.some(p => p.id === `CASE-${currentPracticeCase.id}`);
         if (!exists) {
             let roiEst = 1.0;
-            if (caseId === 2) roiEst = 8.5;
-            if (caseId === 3) roiEst = 4.8;
-            if (caseId === 4) roiEst = 3.5;
-            if (caseId === 6) roiEst = 4.2;
+            if (currentPracticeCase.id === 2) roiEst = 8.5;
+            if (currentPracticeCase.id === 3) roiEst = 4.8;
+            if (currentPracticeCase.id === 4) roiEst = 3.5;
+            if (currentPracticeCase.id === 6) roiEst = 4.2;
             
             userPortfolio.push({
-                id: `CASE-${caseId}`,
-                name: caseName,
+                id: `CASE-${currentPracticeCase.id}`,
+                name: currentPracticeCase.title,
                 roi: roiEst
             });
             localStorage.setItem('userPortfolio', JSON.stringify(userPortfolio));
-            logUserAction(`Added ${caseName} to Portfolio`);
+            logUserAction(`Added ${currentPracticeCase.title} to Portfolio`);
         }
     }
     
@@ -827,7 +982,66 @@ function submitPracticeGuess(caseId, guess) {
     updateArenaHUD();
     updateProfileModalData();
     
-    logUserAction(`Guessed ${guess.toUpperCase()} on Case #${caseId} (${isCorrect ? 'Correct' : 'Incorrect'})`);
+    logUserAction(`Guessed ${guess.toUpperCase()} on Case #${currentPracticeCase.id} (${isCorrect ? 'Correct' : 'Incorrect'})`);
+}
+
+// Venture Capital News Feed generator
+const mockNews = [
+    {
+        badge: "Market Alert",
+        color: "#EF4444",
+        title: "Average Seed Runway Drops to 11.2 Months",
+        time: "2 hours ago",
+        desc: "A tightening liquidity environment forces seed-stage founders to seek break-even earlier as follow-on venture rounds face delays."
+    },
+    {
+        badge: "SaaS Valuation",
+        color: "#8B5CF6",
+        title: "LTV/CAC Benchmarks Rise to 3.8x for Series A",
+        time: "5 hours ago",
+        desc: "VC firms raise efficiency thresholds. Startups with retention metrics below 2.0% churn are experiencing pricing discounts up to 30%."
+    },
+    {
+        title: "Generative AI Grabs 44% of Tech Vetting Volume",
+        badge: "Sector Trend",
+        color: "#06B6D4",
+        time: "1 day ago",
+        desc: "LLM pipeline developers dominate pre-seed applications. Founder index weights rise as technical validation becomes paramount."
+    },
+    {
+        title: "Burn Rate Conservatism Remains Prime Directive",
+        badge: "VC Sentiment",
+        color: "#f59e0b",
+        time: "2 days ago",
+        desc: "Leading partners advise early stage founders to hold at least 18 months cash buffer, labeling growth-at-all-costs 'insolvency risk'."
+    }
+];
+
+function renderVentureNews() {
+    const container = document.getElementById('news-feed-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    mockNews.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'practice-card glass';
+        div.style.padding = '12px 14px';
+        div.style.borderLeft = `3px solid ${item.color}`;
+        div.style.borderRadius = '0 8px 8px 0';
+        div.style.marginBottom = '8px';
+        div.style.minHeight = 'auto';
+        
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                <span style="font-size: 8px; font-weight:700; text-transform:uppercase; color: ${item.color}; background: rgba(255,255,255,0.02); border: 1px solid ${item.color}33; padding: 1px 6px; border-radius: 4px;">${item.badge}</span>
+                <span style="font-size: 9px; color: var(--text-muted);">${item.time}</span>
+            </div>
+            <h4 style="font-family: var(--font-heading); font-size:11px; color: var(--text-main); margin-bottom: 4px; line-height: 1.3; font-weight:700;">${item.title}</h4>
+            <p style="font-size: 10px; color: var(--text-muted); line-height: 1.4; margin:0;">${item.desc}</p>
+        `;
+        container.appendChild(div);
+    });
+}
 }
 
 // Chart.js renderers
@@ -1196,6 +1410,44 @@ function updateProfileDisplay() {
     if (footerRole) footerRole.innerText = investorProfile.job || 'Premium Tier';
 }
 
+// Vetting Wish List (Target Startups) logic
+function addWishListItem(event) {
+    if (event) event.preventDefault();
+    
+    const nameInput = document.getElementById('wish-name');
+    const sectorInput = document.getElementById('wish-sector');
+    const ruleInput = document.getElementById('wish-rule');
+    
+    if (!nameInput.value.trim() || !ruleInput.value.trim()) return;
+    
+    const item = {
+        name: nameInput.value.trim(),
+        sector: sectorInput.value,
+        rule: ruleInput.value.trim()
+    };
+    
+    wishListItems.push(item);
+    localStorage.setItem('wishListItems', JSON.stringify(wishListItems));
+    
+    nameInput.value = '';
+    ruleInput.value = '';
+    
+    logUserAction(`Added ${item.name} to Vetting Wish List`);
+    updateProfileModalData();
+    alert(`Added ${item.name} to your Target Vetting Wish List!`);
+}
+
+function removeWishListItem(index) {
+    if (index < 0 || index >= wishListItems.length) return;
+    
+    const item = wishListItems[index];
+    wishListItems.splice(index, 1);
+    localStorage.setItem('wishListItems', JSON.stringify(wishListItems));
+    
+    logUserAction(`Removed ${item.name} from Wish List`);
+    updateProfileModalData();
+}
+
 function updateProfileModalData() {
     // Dynamic displays for profile header
     updateProfileDisplay();
@@ -1220,7 +1472,7 @@ function updateProfileModalData() {
     
     document.getElementById('profile-holdings-count').innerText = userPortfolio.length;
     
-    // Combine Holdings, Bookmarks, and Target settings inside the Left List Box
+    // Combine Holdings, Bookmarks, Wish List and Target settings inside the Left List Box
     const holdingsList = document.getElementById('profile-holdings-list');
     
     let holdingsHtml = '';
@@ -1260,6 +1512,29 @@ function updateProfileModalData() {
                         <strong style="font-size: 12px; color: var(--text-main);">${id}</strong>
                     </div>
                     <button onclick="toggleBookmarkStartup('${id}')" style="background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 11px;" title="Remove Bookmark">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+        });
+    }
+
+    holdingsHtml += `
+        <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 13px; margin: 16px 0 8px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: #f59e0b;"></i> Vetting Wish List (${wishListItems.length})
+        </h5>
+    `;
+    if (wishListItems.length === 0) {
+        holdingsHtml += `<div style="font-size: 11px; color: var(--text-muted); font-style: italic; margin-bottom: 12px;">No wish list startups yet. Add target companies using the form above.</div>`;
+    } else {
+        wishListItems.forEach((item, idx) => {
+            holdingsHtml += `
+                <div class="holding-card" style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-left: 3px solid var(--accent); padding: 8px; border-radius: 0 6px 6px 0;">
+                    <div>
+                        <strong style="font-size: 12px; color: var(--text-main);">${item.name}</strong> <span style="font-size: 9px; color: var(--text-muted); margin-left:4px;">(${item.sector})</span>
+                        <div style="font-size: 10px; color: var(--accent); margin-top: 2px;">Rule: ${item.rule}</div>
+                    </div>
+                    <button onclick="removeWishListItem(${idx})" style="background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 11px;" title="Remove Target">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
