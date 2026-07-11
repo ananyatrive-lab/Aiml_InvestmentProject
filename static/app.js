@@ -1016,7 +1016,6 @@ function renderVentureNews() {
         container.appendChild(div);
     });
 }
-}
 
 // Chart.js renderers
 
