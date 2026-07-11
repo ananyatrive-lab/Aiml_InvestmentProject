@@ -606,12 +606,42 @@
                 </div>
             </section>
 
-            <!-- PRACTICE AREA TAB -->
-            <section id="tab-practice" class="tab-panel">
-                <div class="panel-header">
-                    <h3>Investment Practice Arena</h3>
-                    <p>Test your intuition on six mock investment scenarios. Predict the outcome and see the correct analysis.</p>
-                </div>
+             <!-- PRACTICE AREA TAB -->
+             <section id="tab-practice" class="tab-panel">
+                 <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                     <div>
+                         <h3>Investment Practice Arena</h3>
+                         <p>Test your intuition on six mock investment scenarios. Predict the outcome and see the correct analysis.</p>
+                     </div>
+                     
+                     <!-- Gaming HUD Streak Box -->
+                     <div class="glass" style="display: flex; gap: 14px; padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.25); background: rgba(8, 12, 22, 0.6); box-shadow: 0 0 15px rgba(6, 182, 212, 0.15); align-items: center;">
+                         <div style="text-align: center; padding-right: 12px; border-right: 1px solid var(--border-color);">
+                             <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Current Streak</span>
+                             <div style="font-family: var(--font-heading); color: #ff3e6c; font-size: 18px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;" id="arena-current-streak">
+                                 <i class="fa-solid fa-fire"></i> <span>0</span>
+                             </div>
+                         </div>
+                         <div style="text-align: center; padding-right: 12px; border-right: 1px solid var(--border-color);">
+                             <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Best Streak</span>
+                             <div style="font-family: var(--font-heading); color: #f59e0b; font-size: 18px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;" id="arena-best-streak">
+                                 <i class="fa-solid fa-crown"></i> <span>0</span>
+                             </div>
+                         </div>
+                         <div style="text-align: center; padding-right: 12px; border-right: 1px solid var(--border-color);">
+                             <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Score</span>
+                             <div style="font-family: var(--font-heading); color: var(--primary-light); font-size: 18px; font-weight: 800; margin-top: 2px;" id="arena-score">
+                                 0 pts
+                             </div>
+                         </div>
+                         <div style="text-align: center;">
+                             <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Efficiency</span>
+                             <div style="font-family: var(--font-heading); color: #10b981; font-size: 18px; font-weight: 800; margin-top: 2px;" id="arena-efficiency">
+                                 0%
+                             </div>
+                         </div>
+                     </div>
+                 </div>
                 
                 <div class="practice-grid">
                     <!-- Case 1 -->
@@ -1117,7 +1147,7 @@
 
     <!-- USER PROFILE MODAL -->
     <div class="modal-overlay hidden" id="profile-modal">
-        <div class="modal-card glass" style="max-width: 650px;">
+        <div class="modal-card glass" style="max-width: 750px;">
             <div class="modal-header">
                 <h3>User Profile & Portfolio</h3>
                 <button class="modal-close" id="profile-close-btn">&times;</button>
@@ -1136,37 +1166,73 @@
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
-                <div class="practice-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 20px 0;">
-                    <div class="practice-card glass" style="padding: 16px; text-align: center;">
-                        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Practice Arena Accuracy</span>
-                        <h2 style="font-family: var(--font-heading); color: var(--primary-light); font-size: 32px; margin-top: 6px;" id="profile-practice-score">0%</h2>
-                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" id="profile-practice-summary">0 correct out of 0 guessed</p>
+                <!-- Stats Grid (3 columns incorporating Streak game HUD) -->
+                <div class="practice-grid" style="grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0;" id="profile-stats-grid">
+                    <div class="practice-card glass" style="padding: 12px; text-align: center; min-height: auto;">
+                        <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Practice Accuracy</span>
+                        <h2 style="font-family: var(--font-heading); color: var(--primary-light); font-size: 24px; margin-top: 4px;" id="profile-practice-score">0%</h2>
+                        <p style="font-size: 9px; color: var(--text-muted); margin-top: 2px;" id="profile-practice-summary">0 correct out of 0 guessed</p>
                     </div>
-                    <div class="practice-card glass" style="padding: 16px; text-align: center;">
-                        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Portfolio Holdings</span>
-                        <h2 style="font-family: var(--font-heading); color: var(--accent); font-size: 32px; margin-top: 6px;" id="profile-holdings-count">0</h2>
-                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Mock investments made</p>
+                    <div class="practice-card glass" style="padding: 12px; text-align: center; min-height: auto;">
+                        <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Game Streak</span>
+                        <h2 style="font-family: var(--font-heading); color: #ff3e6c; font-size: 24px; margin-top: 4px;" id="profile-streak-display">0 🔥</h2>
+                        <p style="font-size: 9px; color: var(--text-muted); margin-top: 2px;" id="profile-best-streak-display">Best Streak: 0</p>
+                    </div>
+                    <div class="practice-card glass" style="padding: 12px; text-align: center; min-height: auto;">
+                        <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Portfolio</span>
+                        <h2 style="font-family: var(--font-heading); color: var(--accent); font-size: 24px; margin-top: 4px;" id="profile-holdings-count">0</h2>
+                        <p style="font-size: 9px; color: var(--text-muted); margin-top: 2px;">Vetted investments</p>
                     </div>
                 </div>
 
-                <div class="modal-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <!-- Left: Portfolio Holdings List -->
-                    <div>
-                        <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 13px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
-                            <i class="fa-solid fa-briefcase" style="color: var(--accent);"></i> Portfolio Holdings
-                        </h5>
-                        <div id="profile-holdings-list" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-                            <div style="font-size: 12px; color: var(--text-muted); font-style: italic;">No active investments yet. Practice investing in the Arena to build your portfolio.</div>
+                <!-- Investor Preferences Setup Form -->
+                <div class="dashboard-card glass" style="margin: 20px 0; padding: 16px; border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.01);">
+                    <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-user-gear" style="color: var(--accent);"></i> Edit Investor Profile & Vetting Preferences
+                    </h5>
+                    <form id="profile-edit-form" style="display: flex; flex-direction: column; gap: 10px;" onsubmit="saveProfileEdits(event)">
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Full Name</label>
+                                <input type="text" id="pref-name" value="Angel Investor" style="padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border-color)'">
+                            </div>
+                            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Email Address</label>
+                                <input type="email" id="pref-email" value="angel.investor@groundwork.vc" style="padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border-color)'">
+                            </div>
                         </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Job / Designation</label>
+                                <input type="text" id="pref-job" value="Lead Venture Partner" style="padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border-color)'">
+                            </div>
+                            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Target Company to Invest In</label>
+                                <input type="text" id="pref-target-company" placeholder="e.g. SpaceX, Stripe, Groww" style="padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border-color)'">
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Interested Sector/Field</label>
+                            <input type="text" id="pref-target-field" placeholder="e.g. FinTech, CleanTech, SaaS, BioTech" style="padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 12px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border-color)'">
+                        </div>
+                        <button type="submit" class="submit-btn" style="margin-top: 6px; padding: 10px 18px; align-self: flex-end; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Profile Details
+                        </button>
+                    </form>
+                </div>
+
+                <div class="modal-grid" style="grid-template-columns: 1.2fr 0.8fr; gap: 20px;">
+                    <!-- Left: Portfolio Holdings & Bookmarks (Populated Dynamically) -->
+                    <div id="profile-holdings-list">
+                        <!-- Rendered dynamically by JS -->
                     </div>
 
                     <!-- Right: History details -->
                     <div>
-                        <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 13px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                        <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 13px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
                             <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary-light);"></i> Action History
                         </h5>
-                        <div id="profile-history-list" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <div id="profile-history-list" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
                             <div style="font-size: 12px; color: var(--text-muted); font-style: italic;">No recent actions recorded.</div>
                         </div>
                     </div>

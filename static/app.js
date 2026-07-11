@@ -7,12 +7,20 @@ let cohortAverages = {};
 let activeTab = 'overview';
 
 // User Profile & Activity Tracking State
-let practiceTotalGuesses = 0;
-let practiceCorrectGuesses = 0;
-let userPortfolio = []; 
-let userActionHistory = [
-    { text: "Initialized Groundwork Client Engine", time: new Date().toLocaleTimeString() }
-];
+let practiceTotalGuesses = parseInt(localStorage.getItem('practiceTotalGuesses') || '0');
+let practiceCorrectGuesses = parseInt(localStorage.getItem('practiceCorrectGuesses') || '0');
+let userPortfolio = JSON.parse(localStorage.getItem('userPortfolio') || '[]'); 
+let userActionHistory = JSON.parse(localStorage.getItem('userActionHistory') || '[]');
+if (userActionHistory.length === 0) {
+    userActionHistory.push({ text: "Initialized Groundwork Client Engine", time: new Date().toLocaleTimeString() });
+}
+
+// Dynamic gaming streak state
+let currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+let bestStreak = parseInt(localStorage.getItem('bestStreak') || '0');
+let gameScore = parseInt(localStorage.getItem('gameScore') || '0');
+let bookmarkedStartups = JSON.parse(localStorage.getItem('bookmarkedStartups') || '[]');
+let investorProfile = JSON.parse(localStorage.getItem('investorProfile') || '{}');
 
 // Pagination state
 let currentPage = 1;
@@ -120,6 +128,10 @@ async function initApp() {
         if (!localStorage.getItem('tourCompleted')) {
             startTour();
         }
+        
+        // Initialize customizable profile details & streak HUD
+        initProfileEdits();
+        updateArenaHUD();
         
     } catch (error) {
         console.error("Initialization error:", error);
@@ -379,9 +391,14 @@ function updateExplorerTab() {
             <td><strong>${item.roi}x</strong></td>
             <td><span class="badge-tier ${badgeClass}">${item.growth_score}% (${item.growth_class})</span></td>
             <td>
-                <button class="action-btn" onclick="openStartupModal('${item.startup_id}')">
-                    <i class="fa-solid fa-chart-simple"></i> Analyze
-                </button>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="action-btn" onclick="openStartupModal('${item.startup_id}')">
+                        <i class="fa-solid fa-chart-simple"></i> Analyze
+                    </button>
+                    <button onclick="toggleBookmarkStartup('${item.startup_id}')" style="background: transparent; border: none; font-size: 14px; cursor: pointer; padding: 6px; transition: color 0.2s;" title="Bookmark Startup">
+                        <i class="${isStartupBookmarked(item.startup_id) ? 'fa-solid' : 'fa-regular'} fa-star" style="color: ${isStartupBookmarked(item.startup_id) ? '#f59e0b' : 'var(--text-muted)'};"></i>
+                    </button>
+                </div>
             </td>
         `;
         tableBody.appendChild(tr);
@@ -765,15 +782,29 @@ function submitPracticeGuess(caseId, guess) {
         <p style="margin-top: 6px;">${content}</p>
     `;
 
-    // Dynamic user profile stats tracking
+    // Dynamic user profile stats tracking & Gaming streaks
     practiceTotalGuesses++;
     if (isCorrect) {
         practiceCorrectGuesses++;
+        currentStreak++;
+        gameScore += 100;
+        if (currentStreak > bestStreak) {
+            bestStreak = currentStreak;
+        }
+    } else {
+        currentStreak = 0;
     }
+    
+    // Save state to localStorage
+    localStorage.setItem('practiceTotalGuesses', practiceTotalGuesses);
+    localStorage.setItem('practiceCorrectGuesses', practiceCorrectGuesses);
+    localStorage.setItem('currentStreak', currentStreak);
+    localStorage.setItem('bestStreak', bestStreak);
+    localStorage.setItem('gameScore', gameScore);
     
     // Add to user holdings portfolio if they chose to Invest (Buy)
     if (guess === 'Buy') {
-        const caseName = document.querySelector(`[data-case-id="${caseId}"] h4`).innerText;
+        const caseName = document.querySelector(`#practice-c${caseId} h4`).innerText;
         const exists = userPortfolio.some(p => p.id === `CASE-${caseId}`);
         if (!exists) {
             let roiEst = 1.0;
@@ -787,9 +818,14 @@ function submitPracticeGuess(caseId, guess) {
                 name: caseName,
                 roi: roiEst
             });
+            localStorage.setItem('userPortfolio', JSON.stringify(userPortfolio));
             logUserAction(`Added ${caseName} to Portfolio`);
         }
     }
+    
+    // Sync HUD indicators and profile modal
+    updateArenaHUD();
+    updateProfileModalData();
     
     logUserAction(`Guessed ${guess.toUpperCase()} on Case #${caseId} (${isCorrect ? 'Correct' : 'Incorrect'})`);
 }
@@ -1063,6 +1099,7 @@ function renderHistoricalBenchmarkChart() {
 function logUserAction(actionText) {
     userActionHistory.unshift({ text: actionText, time: new Date().toLocaleTimeString() });
     if (userActionHistory.length > 20) userActionHistory.pop();
+    localStorage.setItem('userActionHistory', JSON.stringify(userActionHistory));
     updateProfileModalData();
 }
 
@@ -1076,7 +1113,94 @@ function closeProfileModal() {
     document.getElementById('profile-modal').classList.add('hidden');
 }
 
+// Gaming Streaks Arena HUD Updater
+function updateArenaHUD() {
+    const curStreakEl = document.getElementById('arena-current-streak');
+    const bestStreakEl = document.getElementById('arena-best-streak');
+    const scoreEl = document.getElementById('arena-score');
+    const effEl = document.getElementById('arena-efficiency');
+
+    if (curStreakEl) curStreakEl.querySelector('span').innerText = currentStreak;
+    if (bestStreakEl) bestStreakEl.querySelector('span').innerText = bestStreak;
+    if (scoreEl) scoreEl.innerText = `${gameScore} pts`;
+
+    if (effEl) {
+        if (practiceTotalGuesses === 0) {
+            effEl.innerText = '0%';
+        } else {
+            const effVal = Math.round((practiceCorrectGuesses / practiceTotalGuesses) * 100);
+            effEl.innerText = `${effVal}%`;
+        }
+    }
+}
+
+// Bookmark systems
+function isStartupBookmarked(id) {
+    return bookmarkedStartups.includes(id);
+}
+
+function toggleBookmarkStartup(id) {
+    const index = bookmarkedStartups.indexOf(id);
+    if (index === -1) {
+        bookmarkedStartups.push(id);
+        logUserAction(`Bookmarked startup ${id}`);
+    } else {
+        bookmarkedStartups.splice(index, 1);
+        logUserAction(`Removed bookmark for ${id}`);
+    }
+    localStorage.setItem('bookmarkedStartups', JSON.stringify(bookmarkedStartups));
+    updateExplorerTab();
+    updateProfileModalData();
+}
+
+// Customizable profile details setup
+function initProfileEdits() {
+    document.getElementById('pref-name').value = investorProfile.name || 'Angel Investor';
+    document.getElementById('pref-email').value = investorProfile.email || 'angel.investor@groundwork.vc';
+    document.getElementById('pref-job').value = investorProfile.job || 'Lead Venture Partner';
+    document.getElementById('pref-target-company').value = investorProfile.targetCompany || '';
+    document.getElementById('pref-target-field').value = investorProfile.targetField || '';
+    
+    updateProfileDisplay();
+}
+
+function saveProfileEdits(event) {
+    if (event) event.preventDefault();
+    
+    const name = document.getElementById('pref-name').value;
+    const email = document.getElementById('pref-email').value;
+    const job = document.getElementById('pref-job').value;
+    const targetCompany = document.getElementById('pref-target-company').value;
+    const targetField = document.getElementById('pref-target-field').value;
+    
+    investorProfile = { name, email, job, targetCompany, targetField };
+    localStorage.setItem('investorProfile', JSON.stringify(investorProfile));
+    
+    updateProfileDisplay();
+    logUserAction("Updated investor profile preferences");
+    alert("Profile details updated successfully!");
+}
+
+function updateProfileDisplay() {
+    // Modal header
+    document.getElementById('profile-name').innerText = investorProfile.name || 'Angel Investor';
+    document.getElementById('profile-email').innerText = investorProfile.email || 'angel.investor@groundwork.vc';
+    
+    const titleEl = document.getElementById('profile-modal').querySelector('strong');
+    if (titleEl) titleEl.innerText = investorProfile.job || 'Lead Venture Partner';
+    
+    // Sidebar footer
+    const footerName = document.querySelector('.user-profile .user-name');
+    const footerRole = document.querySelector('.user-profile .user-role');
+    if (footerName) footerName.innerText = investorProfile.name || 'Angel Investor';
+    if (footerRole) footerRole.innerText = investorProfile.job || 'Premium Tier';
+}
+
 function updateProfileModalData() {
+    // Dynamic displays for profile header
+    updateProfileDisplay();
+
+    // Accuracy Score stats
     const scoreText = document.getElementById('profile-practice-score');
     const summaryText = document.getElementById('profile-practice-summary');
     if (practiceTotalGuesses === 0) {
@@ -1088,26 +1212,78 @@ function updateProfileModalData() {
         summaryText.innerText = `${practiceCorrectGuesses} correct out of ${practiceTotalGuesses} guessed`;
     }
     
+    // Streak stats display
+    const streakDisplay = document.getElementById('profile-streak-display');
+    const bestStreakDisplay = document.getElementById('profile-best-streak-display');
+    if (streakDisplay) streakDisplay.innerText = `${currentStreak} 🔥`;
+    if (bestStreakDisplay) bestStreakDisplay.innerText = `Best Streak: ${bestStreak}`;
+    
     document.getElementById('profile-holdings-count').innerText = userPortfolio.length;
     
+    // Combine Holdings, Bookmarks, and Target settings inside the Left List Box
     const holdingsList = document.getElementById('profile-holdings-list');
-    holdingsList.innerHTML = '';
+    
+    let holdingsHtml = '';
+    
+    holdingsHtml += `
+        <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 13px; margin: 0 0 8px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-briefcase" style="color: var(--accent);"></i> Portfolio Holdings (${userPortfolio.length})
+        </h5>
+    `;
     if (userPortfolio.length === 0) {
-        holdingsList.innerHTML = `<div style="font-size: 12px; color: var(--text-muted); font-style: italic;">No active investments yet. Practice investing in the Arena to build your portfolio.</div>`;
+        holdingsHtml += `<div style="font-size: 11px; color: var(--text-muted); font-style: italic; margin-bottom: 12px;">No active investments yet. Vette Arena cases to buy holdings.</div>`;
     } else {
         userPortfolio.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'holding-card';
-            div.innerHTML = `
-                <div>
-                    <strong style="font-size:13px; color: var(--text-main);">${item.name}</strong>
-                    <p style="font-size:11px; color: var(--accent); margin-top:2px;">Asset ID: ${item.id}</p>
+            holdingsHtml += `
+                <div class="holding-card" style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 8px; border-radius: 6px;">
+                    <div>
+                        <strong style="font-size: 12px; color: var(--text-main);">${item.name}</strong>
+                    </div>
+                    <span class="badge-tier high" style="font-size: 10px; padding: 2px 6px;">ROI: ${item.roi.toFixed(1)}x</span>
                 </div>
-                <span class="badge-tier high" style="font-size: 11px; padding: 2px 6px;">ROI: ${item.roi.toFixed(1)}x</span>
             `;
-            holdingsList.appendChild(div);
         });
     }
+    
+    holdingsHtml += `
+        <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 13px; margin: 16px 0 8px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-star" style="color: #f59e0b;"></i> Bookmarked Startups (${bookmarkedStartups.length})
+        </h5>
+    `;
+    if (bookmarkedStartups.length === 0) {
+        holdingsHtml += `<div style="font-size: 11px; color: var(--text-muted); font-style: italic; margin-bottom: 12px;">No bookmarked startups yet. Click the star icon in the Explorer tab.</div>`;
+    } else {
+        bookmarkedStartups.forEach(id => {
+            holdingsHtml += `
+                <div class="holding-card" style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-left: 3px solid #f59e0b; padding: 8px; border-radius: 0 6px 6px 0;">
+                    <div>
+                        <strong style="font-size: 12px; color: var(--text-main);">${id}</strong>
+                    </div>
+                    <button onclick="toggleBookmarkStartup('${id}')" style="background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 11px;" title="Remove Bookmark">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+        });
+    }
+    
+    if (investorProfile.targetCompany || investorProfile.targetField) {
+        holdingsHtml += `
+            <h5 style="font-family: var(--font-heading); color: var(--text-main); font-size: 13px; margin: 16px 0 8px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-compass" style="color: var(--primary-light);"></i> Investment Target Goals
+            </h5>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; display: flex; flex-direction: column; gap: 4px;">
+        `;
+        if (investorProfile.targetCompany) {
+            holdingsHtml += `<div>Target Startup: <strong style="color: var(--text-main);">${investorProfile.targetCompany}</strong></div>`;
+        }
+        if (investorProfile.targetField) {
+            holdingsHtml += `<div>Preferred Sector: <strong style="color: var(--text-main);">${investorProfile.targetField}</strong></div>`;
+        }
+        holdingsHtml += `</div>`;
+    }
+    
+    holdingsList.innerHTML = holdingsHtml;
     
     const historyList = document.getElementById('profile-history-list');
     historyList.innerHTML = '';
