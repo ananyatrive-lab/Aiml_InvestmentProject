@@ -342,7 +342,7 @@ function switchTab(tabName) {
         practice: 'Investment Practice Arena',
         analytics: 'Machine Learning Diagnostics',
         about: 'About Groundwork',
-        chatbot: 'AI Investment Copilot'
+        chatbot: 'NIFTY'
     };
     
     const pageTitle = titles[tabName] || 'Groundwork';

@@ -188,7 +188,7 @@ def chat_bot(msg: ChatMessage):
         
     else:
         reply = (
-            "Hello! I am your **Groundwork Investment Copilot**. I can help you answer questions about: \n"
+            "Hello! I am **NIFTY**, your investment copilot. I can help you answer questions about: \n"
             "• **Startup Vetting Metrics** (TAM, Churn, LTV/CAC, Burn Rate, Runway).\n"
             "• **Funding Stages** (Pre-seed, Seed, Series A, Series B).\n"
             "• **Groundwork ML Architecture** (Diagnostics, feature importances).\n"
