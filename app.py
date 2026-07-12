@@ -100,7 +100,46 @@ def chat_bot(msg: ChatMessage):
     reply = ""
     suggestions = []
     
-    if "tam" in user_query or "market size" in user_query or "market address" in user_query:
+    if "what is investment" in user_query or "investment definition" in user_query or user_query == "investment" or user_query == "investing" or "what is investing" in user_query:
+        reply = (
+            "**Investing** is the act of allocating capital (money) to assets, such as public stocks, mutual funds, "
+            "bonds, real estate, or private startup equity, with the expectation of generating an income or profit over time. "
+            "Key investment principles include: \n"
+            "• **Compounding Interest**: Reinvesting your earnings to generate additional earnings over time. "
+            "As Albert Einstein famously said, compounding is the eighth wonder of the world.\n"
+            "• **Risk vs. Return**: Higher potential returns generally involve higher investment risk (e.g. Startups vs. Govt Bonds).\n"
+            "• **Diversification**: Spreading your capital across different asset classes to decrease volatility."
+        )
+        suggestions = ["What is mutual fund?", "VC vs Stock Market", "What is stock market?"]
+        
+    elif "mutual fund" in user_query or "what is a mutual fund" in user_query:
+        reply = (
+            "A **Mutual Fund** is a pooled investment vehicle that collects money from thousands of individual investors "
+            "to purchase a diversified portfolio of public stocks, bonds, or other securities. "
+            "Mutual funds are managed by professional fund managers. They are highly recommended for new investors "
+            "who want instant diversification and do not have the time to audit individual company balance sheets."
+        )
+        suggestions = ["What is stock market?", "What is investment?", "What is compounding?"]
+        
+    elif "stock market" in user_query or "shares" in user_query or "public stock" in user_query or "what is stock market" in user_query:
+        reply = (
+            "The **Stock Market** is a public marketplace where shares of publicly held companies are issued, bought, and sold. "
+            "When you buy a stock (or share), you are buying a tiny fraction of ownership in that company. "
+            "Public stock markets (like the NSE and BSE in India, or NYSE in the US) are highly regulated, offer daily liquidity (you can sell instantly), "
+            "and are great for long-term compound growth."
+        )
+        suggestions = ["What is investment?", "What is mutual fund?", "VC vs Stock Market"]
+
+    elif "equity" in user_query or "shareholding" in user_query:
+        reply = (
+            "**Equity** represents ownership in a company. "
+            "• In **public markets** (stocks), equity is split into millions of shares that trade daily.\n"
+            "• In **private markets** (venture capital / startups), equity is held by founders, angel investors, and venture partners. "
+            "When a VC invests in a startup, they receive private equity in exchange for capital, hoping for a future payout if the startup goes public (IPO) or is acquired."
+        )
+        suggestions = ["What is investment?", "Tell me about Funding Stages", "Explain Churn Rate"]
+
+    elif "tam" in user_query or "market size" in user_query or "market address" in user_query:
         reply = (
             "**Total Addressable Market (TAM)** is the maximum annual revenue opportunity available if a startup captured 100% of its target sector. "
             "In venture capital, we generally target a TAM > $5 Billion. "

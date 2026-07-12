@@ -1764,7 +1764,19 @@ function calculateClientFallbackChat(queryText) {
     let reply = "";
     let suggestions = ["What is LTV/CAC?", "Explain Burn Rate", "How does Groundwork work?"];
 
-    if (query.includes("tam") || query.includes("market size") || query.includes("market address")) {
+    if (query.includes("what is investment") || query.includes("investment definition") || query === "investment" || query === "investing" || query.includes("what is investing")) {
+        reply = "**Investing** is the act of allocating capital (money) to assets, such as public stocks, mutual funds, bonds, real estate, or private startup equity, with the expectation of generating an income or profit over time. Key investment principles include:\n\n• **Compounding Interest**: Reinvesting your earnings to generate additional earnings over time. Compounding is the eighth wonder of the world.\n• **Risk vs. Return**: Higher potential returns generally involve higher investment risk (e.g. Startups vs. Govt Bonds).\n• **Diversification**: Spreading your capital across different asset classes to decrease volatility.";
+        suggestions = ["What is mutual fund?", "VC vs Stock Market", "What is stock market?"];
+    } else if (query.includes("mutual fund") || query.includes("what is a mutual fund")) {
+        reply = "A **Mutual Fund** is a pooled investment vehicle that collects money from thousands of individual investors to purchase a diversified portfolio of public stocks, bonds, or other securities. Mutual funds are managed by professional fund managers. They are highly recommended for new investors who want instant diversification and do not have the time to audit individual company balance sheets.";
+        suggestions = ["What is stock market?", "What is investment?", "Indian broker platforms"];
+    } else if (query.includes("stock market") || query.includes("shares") || query.includes("public stock") || query.includes("what is stock market")) {
+        reply = "The **Stock Market** is a public marketplace where shares of publicly held companies are issued, bought, and sold. When you buy a stock (or share), you are buying a tiny fraction of ownership in that company. Public stock markets (like the NSE and BSE in India, or NYSE in the US) are highly regulated, offer daily liquidity (you can sell instantly), and are great for long-term compound growth.";
+        suggestions = ["What is investment?", "What is mutual fund?", "VC vs Stock Market"];
+    } else if (query.includes("equity") || query.includes("shareholding")) {
+        reply = "**Equity** represents ownership in a company.\n\n• In **public markets** (stocks), equity is split into millions of shares that trade daily.\n• In **private markets** (venture capital / startups), equity is held by founders, angel investors, and venture partners. When a VC invests in a startup, they receive private equity in exchange for capital, hoping for a future payout if the startup goes public (IPO) or is acquired.";
+        suggestions = ["What is investment?", "Tell me about Funding Stages", "Explain Churn Rate"];
+    } else if (query.includes("tam") || query.includes("market size") || query.includes("market address")) {
         reply = "**Total Addressable Market (TAM)** is the maximum annual revenue opportunity available if a startup captured 100% of its target sector. In venture capital, we generally target a TAM > $5 Billion. Think of TAM as the *total size of the market cake*. If the cake is tiny, even a large slice won't feed a massive company. Venture capitalist networks require large market sizes to accommodate hockey-stick return growth.";
         suggestions = ["What is LTV/CAC?", "How to evaluate a Seed startup?", "Tell me about Churn"];
     } else if (query.includes("ltv") || query.includes("cac") || query.includes("acquisition cost")) {
