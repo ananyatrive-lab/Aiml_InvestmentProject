@@ -1747,9 +1747,64 @@ async function handleChatSubmit(e) {
         
     } catch (err) {
         typingIndicator.remove();
-        console.error(err);
-        appendChatMessage('bot', `⚠️ **Error:** Could not connect to the chat assistant. ${err.message}`);
+        console.warn("Chat API offline or blocked. Activating NIFTY client-side response fallback.", err);
+        
+        // Execute fallback client chatbot response
+        const data = calculateClientFallbackChat(queryText);
+        
+        appendChatMessage('bot', data.reply);
+        if (data.suggestions && data.suggestions.length > 0) {
+            updateQuickTags(data.suggestions);
+        }
     }
+}
+
+function calculateClientFallbackChat(queryText) {
+    const query = queryText.toLowerCase().trim();
+    let reply = "";
+    let suggestions = ["What is LTV/CAC?", "Explain Burn Rate", "How does Groundwork work?"];
+
+    if (query.includes("tam") || query.includes("market size") || query.includes("market address")) {
+        reply = "**Total Addressable Market (TAM)** is the maximum annual revenue opportunity available if a startup captured 100% of its target sector. In venture capital, we generally target a TAM > $5 Billion. Think of TAM as the *total size of the market cake*. If the cake is tiny, even a large slice won't feed a massive company. Venture capitalist networks require large market sizes to accommodate hockey-stick return growth.";
+        suggestions = ["What is LTV/CAC?", "How to evaluate a Seed startup?", "Tell me about Churn"];
+    } else if (query.includes("ltv") || query.includes("cac") || query.includes("acquisition cost")) {
+        reply = "**LTV/CAC** is the ratio of a Customer's Lifetime Value to the Cost of Acquiring that Customer. It is the ultimate measure of unit economic health. A ratio of **3.0x or higher** is the global venture standard for growth-stage startups. If LTV/CAC is 1.0x, you are spending $100 on marketing to get $100 in revenue, which destroys value over time.";
+        suggestions = ["Explain Burn Rate", "Tell me about Churn", "What is safe runway?"];
+    } else if (query.includes("burn") || query.includes("cash burn") || query.includes("spending")) {
+        reply = "**Burn Rate** is the amount of cash a startup spends monthly to stay operational. Net burn is cash spent minus cash received. Managing burn rate is critical for early-stage runway conservation. VCs closely monitor burn rate to assess whether founder teams can achieve break-even before needing follow-on funding.";
+        suggestions = ["What is safe runway?", "Explain Funding Stages", "How does Groundwork work?"];
+    } else if (query.includes("runway") || query.includes("cash buffer") || query.includes("months left")) {
+        reply = "**Capital Runway** is the number of months a startup can survive before running completely out of cash at its current burn rate. Formula: *Total Cash / Monthly Net Burn*. A healthy startup should maintain a runway of **18 to 24 months** to safely de-risk operations and plan for funding cycles.";
+        suggestions = ["Explain Funding Stages", "What is LTV/CAC?", "Tell me about Churn"];
+    } else if (query.includes("churn") || query.includes("retention") || query.includes("attrition")) {
+        reply = "**Churn Rate** is the percentage of customers or revenue lost over a given period (usually monthly). For B2B SaaS startups, a healthy monthly churn is **< 1.5%** (less than 15% annually). High churn creates a 'leaky bucket' business, meaning you must acquire customers faster than you lose them just to stay flat.";
+        suggestions = ["What is LTV/CAC?", "Explain Burn Rate", "How to evaluate a Seed startup?"];
+    } else if (query.includes("stage") || query.includes("funding") || query.includes("seed") || query.includes("series")) {
+        reply = "Startups raise capital in consecutive cycles: \n\n" +
+                "• **Pre-Seed**: Prototype vetting, validation, and first hires ($100k-$500k).\n" +
+                "• **Seed**: Establishing product-market fit (PMF) and initial pilot runs ($1M-$3M).\n" +
+                "• **Series A**: Scaling user acquisition and establishing repeat sales pipelines ($5M-$15M).\n" +
+                "• **Series B**: Scaling marketing, operations, and international expansion ($20M-$50M).";
+        suggestions = ["What is LTV/CAC?", "What is safe runway?", "Explain Burn Rate"];
+    } else if (query.includes("groundwork") || query.includes("algorithm") || query.includes("model") || query.includes("forest")) {
+        reply = "**Groundwork** is an ML-powered startup vetting dashboard that uses a **Random Forest Classifier and Regressor** trained on historical early-stage startup records. The models analyze key operational indicators (YoY growth, Churn, LTV/CAC, Runway, TAM, founder index) to calculate growth potential classifications and forecast ROI yields.";
+        suggestions = ["What is LTV/CAC?", "How does Groundwork work?", "Tell me about Churn"];
+    } else if (query.includes("market") || query.includes("stock") || query.includes("broker") || query.includes("groww") || query.includes("zerodha") || query.includes("upstox")) {
+        reply = "The broader investment market includes public equities (stocks), mutual funds, and fixed-income assets. While Groundwork focuses on high-growth venture capital (private startups), public stock investing is highly recommended for balanced diversification. You can invest in public stocks and mutual funds using registered platforms like **Zerodha** (known for its robust technical indicators) and **Groww** (known for its simple, beginner-friendly UI).";
+        suggestions = ["What is VC guidelines?", "How to invest in Seed?", "What is LTV/CAC?"];
+    } else {
+        reply = "Hello! I am **NIFTY**, your investment copilot. I can help you answer questions about: \n\n" +
+                "• **Startup Vetting Metrics** (TAM, Churn, LTV/CAC, Burn Rate, Runway).\n" +
+                "• **Funding Stages** (Pre-seed, Seed, Series A, Series B).\n" +
+                "• **Groundwork ML Architecture** (Diagnostics, feature importances).\n" +
+                "• **Investment Guidelines** (when to buy, when to pass).";
+        suggestions = ["What is LTV/CAC?", "Explain Burn Rate", "How does Groundwork work?"];
+    }
+
+    return {
+        reply: reply,
+        suggestions: suggestions
+    };
 }
 
 function appendChatMessage(sender, text) {
