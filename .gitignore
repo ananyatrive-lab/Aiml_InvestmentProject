@@ -17,3 +17,8 @@ Thumbs.db
 # Large Model weights and data
 models/*.joblib
 data/*.csv
+
+# Exclude PowerPoint presentations
+*.pptx
+*.ppt
+Groundwork_Presentation.pptx
